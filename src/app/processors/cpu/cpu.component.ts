@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SimulationControlService } from '../../simulation-control.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cpu',
@@ -18,7 +19,7 @@ export class CpuComponent implements AfterViewInit, OnDestroy {
   triggerReset = 0;
 
   private animationRef: number | null = null;
-  private subscriptions: any[] = [];
+  private subscriptions: Subscription[] = [];
   private simState = {
     time: 0,
     particles: [] as any[],
