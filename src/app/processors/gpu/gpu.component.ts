@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SimulationControlService } from '../../simulation-control.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-gpu',
@@ -14,11 +15,11 @@ import { SimulationControlService } from '../../simulation-control.service';
 export class GpuComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasRef') canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  isPlaying = true;
-  triggerReset = 0;
+  private isPlaying = true;
+
 
   private animationRef: number | null = null;
-  private subscriptions: any[] = [];
+  private subscriptions: Subscription[] = [];
   private simState = {
     time: 0,
     waves: [] as any[],
