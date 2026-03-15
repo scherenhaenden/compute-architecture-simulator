@@ -44,7 +44,7 @@ describe('App', () => {
     expect(component.simControl.isPlaying).toBe(true);
   });
 
-  it('should have chipKeys with CPU, GPU, TPU, NPU', () => {
-    expect(component.chipKeys).toEqual(['CPU', 'GPU', 'TPU', 'NPU']);
+  it('should have chipKeys with all chips', () => {
+    expect(component.chipKeys).toEqual(['CPU', 'GPU', 'TPU', 'NPU', 'DPU', 'QPU', 'LPU']);
   });
 });

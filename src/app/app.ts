@@ -14,7 +14,7 @@ import { SimulationControlService } from './simulation-control.service';
 })
 export class App {
   readonly CHIP_INFO = CHIP_INFO;
-  readonly chipKeys = ['CPU', 'GPU', 'TPU', 'NPU']; // Only using the 4 main chips
+  readonly chipKeys = ['CPU', 'GPU', 'TPU', 'NPU', 'DPU', 'QPU', 'LPU'];
 
   activeChip = 'CPU';
 
