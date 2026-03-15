@@ -9,39 +9,53 @@
       <p class="text-slate-400 text-sm">Visualizador Interactivo de Arquitecturas</p>
     </div>
 
-    <!-- Chip Selector -->
+    <!-- Chip Selector (Navigation) -->
     <div class="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
-      <button
+      <a
         *ngFor="let chip of chipKeys"
-        (click)="setActiveChip(chip)"
-        [ngClass]="activeChip === chip ? CHIP_INFO[chip].bg + ' ' + CHIP_INFO[chip].color + ' shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'"
-        class="flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-300"
+        [routerLink]="['/', chip.toLowerCase()]"
+        routerLinkActive="bg-white/10 shadow-sm"
+        [routerLinkActiveOptions]="{exact: true}"
+        [ngClass]="activeChip === chip ? CHIP_INFO[chip].bg + ' ' + CHIP_INFO[chip].color : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'"
+        class="flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-300 cursor-pointer"
       >
         <lucide-icon [img]="CHIP_INFO[chip].icon" class="w-6 h-6"></lucide-icon>
         <span class="hidden sm:inline">{{chip}}</span>
-      </button>
+      </a>
     </div>
   </div>
 
   <!-- MAIN CONTENT -->
   <div class="flex flex-col lg:flex-row flex-1 overflow-hidden">
 
-    <!-- CANVAS AREA -->
+    <!-- ROUTER OUTLET AREA -->
     <div class="flex-1 relative border-b lg:border-b-0 lg:border-r border-slate-800">
-      <canvas
-        #canvasRef
-        class="w-full h-full block"
-      ></canvas>
+      <router-outlet></router-outlet>
+      <!-- Note: the standalone components need to somehow receive isPlaying and triggerReset.
+           We can use a shared service, or @Input binding with a router outlet directive,
+           or simple event emitters. Using @Input with a directive or just simple router outlet.
+           Since Angular v16, router-outlet can bind inputs using bindToComponentInputs in provideRouter,
+           but passing dynamic state like isPlaying and triggerReset is easier by subscribing to a service.
+           Let's create a simple simulation control service. -->
+
+      <!-- Wait, an easier approach since we have the components loaded is to just use a service,
+           but since I've already set up the components with @Input, I will use a simple wrapper
+           or use the new component input binding if enabled. I will enable withComponentInputBinding
+           in app.config.ts and pass data via route data or state, but actually @Input from router-outlet
+           doesn't automatically bind dynamic properties from the parent.
+           Let's update app.config.ts to ensure routing is set up, but for now I'll just change the
+           components to fetch state from a shared service, or I can just leave router-outlet and
+           create a SimulationService. I'll modify the components in a moment if needed. -->
 
       <!-- Overlay Controls -->
       <div class="absolute top-4 right-4 flex gap-2">
         <button
           (click)="togglePlaying()"
           class="p-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-full backdrop-blur-sm border border-slate-700 transition-colors"
-          [title]="isPlaying ? 'Pausar' : 'Reproducir'"
+          [title]="simControl.isPlaying ? 'Pausar' : 'Reproducir'"
         >
-          <lucide-icon *ngIf="isPlaying" [img]="icons.Pause" class="w-5 h-5"></lucide-icon>
-          <lucide-icon *ngIf="!isPlaying" [img]="icons.Play" class="w-5 h-5"></lucide-icon>
+          <lucide-icon *ngIf="simControl.isPlaying$ | async" [img]="icons.Pause" class="w-5 h-5"></lucide-icon>
+          <lucide-icon *ngIf="!(simControl.isPlaying$ | async)" [img]="icons.Play" class="w-5 h-5"></lucide-icon>
         </button>
         <button
           (click)="resetSimulation()"
@@ -54,7 +68,7 @@
     </div>
 
     <!-- INFO PANEL -->
-    <div class="w-full lg:w-96 bg-slate-900 p-6 overflow-y-auto flex flex-col gap-6">
+    <div class="w-full lg:w-96 bg-slate-900 p-6 overflow-y-auto flex flex-col gap-6" *ngIf="activeInfo">
 
       <div [ngClass]="['p-4 rounded-xl border-l-4', activeInfo.bg, activeInfo.border]">
         <h2 [ngClass]="['text-2xl font-bold flex items-center gap-3', activeInfo.color]">
@@ -118,23 +132,6 @@
             <ng-container *ngIf="activeChip === 'NPU'">
               <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-purple-400 shadow-[0_0_8px_#c084fc]"></span> Pulso de Señal</li>
               <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-full border-2 border-purple-500 bg-purple-500/50"></span> Neurona Activada</li>
-            </ng-container>
-
-            <ng-container *ngIf="activeChip === 'DPU'">
-              <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span> Datos hacia CPU</li>
-              <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]"></span> Datos hacia Almacenamiento</li>
-              <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm border border-sky-400 bg-slate-800"></span> Inspección DPU y Enrutamiento</li>
-            </ng-container>
-
-            <ng-container *ngIf="activeChip === 'QPU'">
-              <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-full border border-cyan-400 bg-cyan-500/50 shadow-[0_0_8px_#06b6d4]"></span> Cúbit (Qubit)</li>
-              <li class="flex items-center gap-2"><span class="w-3 h-1 bg-pink-500 shadow-[0_0_8px_#ec4899]"></span> Entrelazamiento</li>
-              <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-full border border-cyan-400 bg-transparent"></span> Microondas (Puerta Lógica)</li>
-            </ng-container>
-
-            <ng-container *ngIf="activeChip === 'LPU'">
-              <li class="flex items-center gap-2"><span class="w-4 h-4 rounded-sm bg-orange-200 shadow-[0_0_8px_#ea580c] flex items-center justify-center text-[8px] font-bold text-orange-900">T</span> Token (Secuencia de Lenguaje)</li>
-              <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm border border-orange-600 bg-orange-500/50"></span> Bloque SRAM + Compute de baja latencia</li>
             </ng-container>
           </ul>
         </div>
