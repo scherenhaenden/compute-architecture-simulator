@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
 import { LucideAngularModule, Cpu, Grid, Maximize, BrainCircuit, Play, Pause, RotateCcw, Info, Network, Atom, MessageSquare } from 'lucide-angular';
 
@@ -13,6 +14,9 @@ describe('App', () => {
         LucideAngularModule.pick({
           Cpu, Grid, Maximize, BrainCircuit, Play, Pause, RotateCcw, Info, Network, Atom, MessageSquare
         })
+      ],
+      providers: [
+        provideRouter([])
       ]
     }).compileComponents();
 
@@ -29,19 +33,18 @@ describe('App', () => {
     expect(component.activeChip).toEqual('CPU');
   });
 
-  it('should initialize with isPlaying true', () => {
-    expect(component.isPlaying).toBe(true);
+  it('should initialize with isPlaying true from service', () => {
+    expect(component.simControl.isPlaying).toBe(true);
   });
 
-  it('should toggle playing state', () => {
+  it('should toggle playing state via service', () => {
     component.togglePlaying();
-    expect(component.isPlaying).toBe(false);
+    expect(component.simControl.isPlaying).toBe(false);
     component.togglePlaying();
-    expect(component.isPlaying).toBe(true);
+    expect(component.simControl.isPlaying).toBe(true);
   });
 
-  it('should set active chip correctly', () => {
-    component.setActiveChip('GPU');
-    expect(component.activeChip).toEqual('GPU');
+  it('should have chipKeys with all chips', () => {
+    expect(component.chipKeys).toEqual(['CPU', 'GPU', 'TPU', 'NPU', 'DPU', 'QPU', 'LPU']);
   });
 });

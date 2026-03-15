@@ -9,39 +9,38 @@
       <p class="text-slate-400 text-sm">Visualizador Interactivo de Arquitecturas</p>
     </div>
 
-    <!-- Chip Selector -->
+    <!-- Chip Selector (Navigation) -->
     <div class="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
-      <button
+      <a
         *ngFor="let chip of chipKeys"
-        (click)="setActiveChip(chip)"
-        [ngClass]="activeChip === chip ? CHIP_INFO[chip].bg + ' ' + CHIP_INFO[chip].color + ' shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'"
-        class="flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-300"
+        [routerLink]="['/', chip.toLowerCase()]"
+        routerLinkActive="bg-white/10 shadow-sm"
+        [routerLinkActiveOptions]="{exact: true}"
+        [ngClass]="activeChip === chip ? CHIP_INFO[chip].bg + ' ' + CHIP_INFO[chip].color : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'"
+        class="flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-300 cursor-pointer"
       >
         <lucide-icon [img]="CHIP_INFO[chip].icon" class="w-6 h-6"></lucide-icon>
         <span class="hidden sm:inline">{{chip}}</span>
-      </button>
+      </a>
     </div>
   </div>
 
   <!-- MAIN CONTENT -->
   <div class="flex flex-col lg:flex-row flex-1 overflow-hidden">
 
-    <!-- CANVAS AREA -->
+    <!-- ROUTER OUTLET AREA -->
     <div class="flex-1 relative border-b lg:border-b-0 lg:border-r border-slate-800">
-      <canvas
-        #canvasRef
-        class="w-full h-full block"
-      ></canvas>
+      <router-outlet></router-outlet>
 
       <!-- Overlay Controls -->
       <div class="absolute top-4 right-4 flex gap-2">
         <button
           (click)="togglePlaying()"
           class="p-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-full backdrop-blur-sm border border-slate-700 transition-colors"
-          [title]="isPlaying ? 'Pausar' : 'Reproducir'"
+          [title]="simControl.isPlaying ? 'Pausar' : 'Reproducir'"
         >
-          <lucide-icon *ngIf="isPlaying" [img]="icons.Pause" class="w-5 h-5"></lucide-icon>
-          <lucide-icon *ngIf="!isPlaying" [img]="icons.Play" class="w-5 h-5"></lucide-icon>
+          <lucide-icon *ngIf="simControl.isPlaying$ | async" [img]="icons.Pause" class="w-5 h-5"></lucide-icon>
+          <lucide-icon *ngIf="!(simControl.isPlaying$ | async)" [img]="icons.Play" class="w-5 h-5"></lucide-icon>
         </button>
         <button
           (click)="resetSimulation()"
@@ -54,7 +53,7 @@
     </div>
 
     <!-- INFO PANEL -->
-    <div class="w-full lg:w-96 bg-slate-900 p-6 overflow-y-auto flex flex-col gap-6">
+    <div class="w-full lg:w-96 bg-slate-900 p-6 overflow-y-auto flex flex-col gap-6" *ngIf="activeInfo">
 
       <div [ngClass]="['p-4 rounded-xl border-l-4', activeInfo.bg, activeInfo.border]">
         <h2 [ngClass]="['text-2xl font-bold flex items-center gap-3', activeInfo.color]">
